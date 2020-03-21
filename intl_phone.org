@@ -1,0 +1,58 @@
+*
+https://wolfenterprises.atlassian.net/wiki/spaces/WE/pages/129433620/Proposal+to+eliminate+incorrect+formatting+of+phone+numbers+in+Daylite
+
+* Current logic
+|-------------+--------------------------------------+---------------------------+-----------------+---------------------- |
+|          \d | m/\A[1]/                             | m/\A[^1]/                 | m/\A[+]1/       | m/\A[+][^1]/         |
+| Digit Count | Start with 1                         | Start with non-1          | Start with "+1" | Start with "+" non-1 |
+|-------------+--------------------------------------+---------------------------+-----------------+----------------------|
+|           7 | N/C                                  | Reformate to 7-digit NANP |                 |                      |
+|           8 | Strip "1" & Reformat to 7-digit NANP | N/C                       |                 |                      |
+|           9 | N/C                                  | N/C                       |                 |                      |
+|          10 | N/C                                  | Reformat to 10-digit NANP |                 |                      |
+|          11 | Reformat to 1+10-digit NANP          | N/C                       |                 |                      |
+  
+
+Most phone entries are not changed (N/C), with the following exceptions
+
+** Strip leading "1"; Reformat as 7-digit NANP
+12345678 -> 234-5678 
+
+** Preserve leading "1"; Reformat as 10-digit NANP
+12345678901 -> 1 (234) 567-8901
+
+** Reformat as 7-digit NANP
+2234567 -> 223-45678
+
+** Reformat as 10-digit NANP
+
+* Proposals
+
+** First, do no harm
+
+If the string starts with "+", LEAVE IT ALONE.  Assume the user knows the local formatting custom, and that the string will work on their phone, PBX, or outbound dialer.  Even if the string starts w/ "+1" and continues with non-standard formatting, leave it alone.  There may be a reason for the non-standard formatting, especially if it's a non-phone service with fewer than 10 digits.
+
+This is the easiest for developers to code, and for users to understand.
+
+** Try to be helpful
+
+If the string starts with "+1" then continues with EXACTLY 10 digits, format it as "+1 (ddd) ddd-dddd".  That's standard NANP formatting.  It may "corrupt" a non-standard preference (e.g. "+1.703.555.1212" to look cool or "+17035551212" to appease a poorly-coded DB schema or outbound dialing system), but at least you can righteously quote a standard to the user to convince them why they are wrong.  (BTW, this is not a good position for customer success folks to be in!)
+
+If the string starts with "+1" then continues WITH OTHER-THAN-10 digits, it's likely a mistake.  There's no way to "guess" what to do.  LEAVE IT ALONE.  It may even be a legitimate "service" (as in "text '12345' to "7171" to win tickets to tonight's hockey game"
+
+If it starts with "+" then any number other than 1, trying to "Do The Right Thing"(tm) is asking for spaghetti code chasing a stampede of obnoxious bugs down a rat's hole.  It's asking for customer-success-hell and angry customers.  I'm sure you already know this, but in case you wanted to scare yourself away from even trying, check out https://en.wikipedia.org/wiki/National_conventions_for_writing_telephone_numbers
+
+** Nah.  Assume that customers are smarter than we are and don't want buggy software to "help" them by doing the *WRONG* thing.
+
+If the string starts with "+", LEAVE IT ALONE.
+
+================================================================
+
+
+If the string starts with "+1"
+ - If 10 more digits, format as "+1 (ddd) ddd-dddd"
+ - If 7 more digits, they forgot an area code.
+   - Leave it alone or default to some configurable "default" area code.  This is a rat's nest.  Don't try to be smart.
+
+If the string starts with "+" and anything except "1"
+ - DO NOTHING.  Leave it alone.  Assume the user is familiar with international dialing, and that they have formatted it in the local custom, and that the dialing string they use will work on their phone, PBX, or dialing service. 
