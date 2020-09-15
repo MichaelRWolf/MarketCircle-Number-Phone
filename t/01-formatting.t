@@ -14,15 +14,16 @@ BEGIN {
 
 my @test_cases =
   (
+   # user_input        expected           test_name
    ['+1 800 555 1212', '+1 800-555-1212', '+1 800'],
-   ['(800)-555-1212', '800-555-1212', '800'],
+   ['(800)-555-1212', '800-555-1212',     '800'],
 
 
-   ['206 555 1212',   '206-555-1212', 'NPA-NXX-XXXX'],
-   ['2065551212',     '206-555-1212', 'NPANXXXXXX'],
-   ['206.555.1212',   '206-555-1212', 'NPA.NXX.XXXX'],
-   ['(206) 555-1212', '206-555-1212', '(NPA) NXX-XXXX'],
-   ['206-555-1212',   '206-555-1212', 'NPA-NXX-XXXX'],
+   ['206 555 1212',   '206-555-1212',     'NPA-NXX-XXXX'],
+   ['2065551212',     '206-555-1212',     'NPANXXXXXX'],
+   ['206.555.1212',   '206-555-1212',     'NPA.NXX.XXXX'],
+   ['(206) 555-1212', '206-555-1212',     '(NPA) NXX-XXXX'],
+   ['206-555-1212',   '206-555-1212',     'NPA-NXX-XXXX'],
 
    # ['411', '411', 'No area code'],
    
@@ -33,6 +34,10 @@ my @test_cases =
    # https://www.westpac.com.au/contact-us/?fid=wbcheader:1812:contactus
    ['(+61 2) 9155 7700', '+61 2 9155 7700', 'Westpac Personal Customers - original'],
    ['+61 2 9155 7700'  , '+61 2 9155 7700', 'Westpac Personal Customers - cleaned'],
+
+   # Zoom dial-in number...
+   ['+1-855-552-4463', '', 'Zoom dial-in'],
+   ['+1-855-552-4463,,7398 92 1407#', '', 'Zoom dial-in onetouch']
   );
 
 

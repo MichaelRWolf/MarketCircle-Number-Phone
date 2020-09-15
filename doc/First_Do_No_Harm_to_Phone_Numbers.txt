@@ -1,0 +1,51 @@
+Marketcircle/Daylite Developers,
+
+I have been assembling a GREAT bug report (and feature request), but it's taken me months, so let me just do GEFN (Good Enough For Now).
+
+Summary:  
+The phone number reformatter does
+    * a good job on some numbers,
+    * a wrong job on others, and
+    * destroys still others.
+
+--> I had a huge proposal -- DO IT RIGHT -- but that involves a world (pun intended) of edge cases.
+
+--> I have a simple proposal -- JUST DON'T DO IT WRONG
+
+
+Details:
+
+The reformatting code assumes NANP where you can assume that a 9-digit number (or 10-digit) number is formatted as "(NPA)-NXX-XXXX", but that assumption doesn't cover other contries where are 9-10 digits in the string. I first saw this as I cut/pasted a colleague's number from Denmark.  The number was correctly formatted for international dialing (), but got corrupted because, including international country code, it had 9 digits.  Not only did it corrupt the local convention for formatting the number, it removed the "+", thus making my iPhone incorrectly call phone in area code 453 (currently unassigned) instead of calling to country code 45 (Denmark).
+
+I did a lot of research on this.  I'm kind geeky that way, having worked for AT&T Bell Labs!  I even created some tables and Perl test scripts to show off the bug (and my proposed solution).  But when I was trying to "make it right", it was a difficult problem.  Then, I realized that the "easiest thing that could possibly work" was to NOT MAKE IT WRONG!!!!!
+
+I've also noticed problems where I try to enter the iPhone equivalent of what modems used to call line control sequences (or Hayes modem commands?).  The only ones that still matter (to me) are "," (pause) and ";" wait, but when I enter these, they get translated into an extension.  Suppose I wanted to call a number, then have the prompts queued up for a call tree.  It would look like this.  800-555-1212;2;3;9, but the code screws it up to be 800-555-1212 x2 (or something equally wrong).
+
+It is frustrating to me that the code turns correct input into corrupt data.
+
+BUT.... there is a simple fix.  I could probably implement it in 10 lines of Perl code.  (And would be happy to do a ping-pong pairing session with you to write the test cases).
+
+
+So, here's my pseudo-code, in a Perl-ish sty
+
+if user enters new text string
+{
+      if first non-whitespace character is "+" leave-it-the-heck-alone.  The user knows what they are doing.  Don't undo it.  (Possibly strip leading and trailing whitspace, but NOTHING ELSE!!!!!) 
+} else { # assume user has modified an existing number (as could be inferred by some kind of form events or phone events)
+    Leave-it-the-heck-alone -- The user just did something important to them.  Don't contradict them, even if they have formatted it incorrrectly!!!!  <---- Huge simplifying assumption!  The code doesn't have to be 100% right.  It can trust the human in the loop.
+}    
+
+I hope this makes sense.  I've spent a lot of time thinking about this and creating write-ups for it.  In the end, I think I could share everything I know in a phone conversation that's shorter than the amount of time it took me to write this 5th version of a bug report.
+
+I'd be happy to schedule 15 minutes if that would help.
+
+Thanks
+Michael
+
+P.S.  I'm investing this time because I realllyyyy like your product, and want to give back in a way that could create a lot of value for you (and a decrease of frustration to your customers).
+
+References:
+https://en.wikipedia.org/wiki/National_conventions_for_writing_telephone_numbers#United_States,_Canada,_and_other_NANP_countries
+
+
+P.P.S.  I'm also attachig a zip file with some (very) incomplete Perl programs and text files.  They're not 100% bomb-proof, but it's better specs than I typically get for my coding!
