@@ -30,7 +30,10 @@ So, here's my pseudo-code, in a Perl-ish sty
 
 if user enters new text string
 {
-      if first non-whitespace character is "+" leave-it-the-heck-alone.  The user knows what they are doing.  Don't undo it.  (Possibly strip leading and trailing whitspace, but NOTHING ELSE!!!!!) 
+      if first non-whitespace character is "+" leave-it-the-heck-alone.  The user knows what they are doing.  Don't undo it.  (Possibly strip leading and trailing whitspace, but NOTHING ELSE!!!!!)
+      if string contains "dial command" characters (comma and semi-colon), do not change anything.
+      if string contains letters, do not change anything.  Maybe it's 1-800-HOLIDAY (to call Holiday Inn).  Maybe it's a Hayes dial code "DP5551212,,42,99"  (Dial Pulse call a phone number, wait then send "42", wait then send "99").
+      ### In short.  If it has any "significant" characters in it, assume that the customer is always right.  (And if not, they can correct it, in which case they are right, so see initial assumption).
 } else { # assume user has modified an existing number (as could be inferred by some kind of form events or phone events)
     Leave-it-the-heck-alone -- The user just did something important to them.  Don't contradict them, even if they have formatted it incorrrectly!!!!  <---- Huge simplifying assumption!  The code doesn't have to be 100% right.  It can trust the human in the loop.
 }    
